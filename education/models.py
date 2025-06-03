@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.core.validators import MinValueValidator
-
+from django.utils.text import slugify
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -14,7 +14,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
     
-    def create_superuser(seld, email, password=None, **extra_fields):
+    def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -69,6 +69,15 @@ class Location(models.Model):
         verbose_name = "Описание",
         blank=True,
     )
+    slug = models.SlugField(
+        "URL",
+        max_length=250,
+        unique=True,
+        null=False,
+        blank=True,
+        editable=True,
+    )
+
     class Meta:
         verbose_name = 'Локация'
         verbose_name_plural = 'Локация'
@@ -90,7 +99,7 @@ class Levels(models.Model):
     )
     title = models.CharField(
         verbose_name="Название уровня",
-        max_length='255',
+        max_length=255,
     )
     desc = models.TextField(
         verbose_name='Тип уровня',
@@ -111,7 +120,14 @@ class Levels(models.Model):
         default=0,
         validators=[MinValueValidator(0)],
     )
-
+    slug = models.SlugField(
+        "URL",
+        max_length=250,
+        unique=True,
+        null=False,
+        blank=True,
+        editable=True,
+    )
     
     class Meta:
         verbose_name = 'Уровень'
@@ -120,7 +136,6 @@ class Levels(models.Model):
         constraints = [
             models.CheckConstraint(
                 check=models.Q(
-                    # Опыт всегда >= 0
                     exp_reward__gte=0,
                     coins_reward=0 if models.Q(type__in=['TH']) else models.Q(coins_reward__gte=0)
                 ),
@@ -132,7 +147,6 @@ class Levels(models.Model):
         return f"{self.title} ({self.get_type_display()})"
 
     def save(self, *args, **kwargs):
-        # Автоматическая проверка наград при сохранении
         if self.type in [self.LevelType.THEORY]:
             self.coins_reward = 0
         super().save(*args, **kwargs)
@@ -164,30 +178,82 @@ class Achievements(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class UserAchievements(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='achievements')
+    achievement = models.ForeignKey('Achievements', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Достижение пользователя'
+        verbose_name_plural = 'Достижения пользователей'
     
 
+class UserProgress(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='progress')
+    level = models.ForeignKey('Levels', on_delete=models.CASCADE)
+    status = models.CharField(max_length=50)
+
+    class Meta:
+        verbose_name = 'Прогресс пользователя'
+        verbose_name_plural = 'Прогресс пользователей'
+
+
+class Question(models.Model):
+    text = models.TextField()
+
+    class Meta:
+        verbose_name = 'Вопрос'
+        verbose_name_plural = 'Вопросы'
+
+class Answer(models.Model):
+    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
+    text = models.TextField()
+    is_correct = models.BooleanField()
+
+    class Meta:
+        verbose_name = 'Ответ'
+        verbose_name_plural = 'Ответы'
+
+
+class LevelQuestion(models.Model):
+    level = models.ForeignKey('Levels', on_delete=models.CASCADE, related_name='level_questions')
+    question = models.ForeignKey('Question', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Вопрос уровня'
+        verbose_name_plural = 'Вопросы уровней'
+
+
+class Boss(models.Model):
+    level = models.ForeignKey('Levels', on_delete=models.CASCADE, related_name='boss')
+    boss_name = models.CharField(max_length=100)
+    desc = models.TextField(blank=True)
+    reward_exp = models.PositiveIntegerField(default=0)
+    reward_coins = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Босс'
+        verbose_name_plural = 'Боссы'
 
 
 
+class Word(models.Model):
+    word = models.CharField(max_length=100)
+    translation = models.CharField(max_length=100)
+    category = models.CharField(max_length=100)
 
+    class Meta:
+        verbose_name = 'Слово'
+        verbose_name_plural = 'Слова'
 
+class BossWord(models.Model):
+    boss = models.ForeignKey('Boss', on_delete=models.CASCADE)
+    word = models.ForeignKey('Word', on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name = 'Слово босса'
+        verbose_name_plural = 'Слова боссов'
 
-
-
-
-'''class SkinType(models.TextChoices):
-class Skins(models.Model):
-    name = models.CharField(
-        verbose_name="Название скина",
-        max_length=100,
-    )
-    desc = models.TextField(
-        verbose_name="Описание",
-        blank=True,
-    )
-    image_url = models.URLField(
-        verbose_name="Ссылка на изображение",
-        max_length=255,
-    )
-    type()'''
