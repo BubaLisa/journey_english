@@ -1,18 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="content">
   <h2>{{ location.title }}</h2>
-  <p>{{ location.desc }}</p>
-
-  {% for level in location.levels.all %}
-    <div style="margin-left: 20px; margin-bottom: 10px;">
-      <strong>{{ level.title }}</strong> 
-      ({{ level.get_type_display }})<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;)<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;(<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;)<br>
-    </div>
-  {% empty %}
-    <p>Нет уровней в этой локации.</p>
-  {% endfor %}
+  
+  <div class="level-path">
+    {% for level in location.levels.all %}
+      <div class="level-container">
+        <span 
+          class="level-title"
+          data-level-type="{{ level.get_type_display }}"
+          data-exp-reward="{{ level.exp_reward }}"
+          data-coins-reward="{{ level.coins_reward }}">
+          {{ level.title }}
+        </span>
+      </div>
+    {% empty %}
+      <p class="empty-message">Нет уровней в этой локации.</p>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

@@ -135,13 +135,13 @@ class Levels(models.Model):
         ordering = ['location', 'type']
         constraints = [
             models.CheckConstraint(
-                check=models.Q(
-                    exp_reward__gte=0,
-                    coins_reward=0 if models.Q(type__in=['TH']) else models.Q(coins_reward__gte=0)
-                ),
+                check=(models.Q(type='TH', coins_reward=0) |
+                    models.Q(type__in=['TR', 'BS'], coins_reward__gte=0)) &
+                    models.Q(exp_reward__gte=0),
                 name='reward_constraints'
             )
         ]
+
 
     def __str__(self):
         return f"{self.title} ({self.get_type_display()})"
