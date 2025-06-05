@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Location, Levels, Question, Answer, Boss, Word
+from .models import CustomUser, Location, Levels, Question, Answer, Boss, Word, QuestionImage, AnswerImage, LevelQuestion
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -21,17 +21,44 @@ class CustomUserAdmin(UserAdmin):
         ),
     )
 
+class QuestionImageInline(admin.TabularInline):
+    model = QuestionImage
+    extra = 1
+
+class AnswerImageInline(admin.TabularInline):
+    model = AnswerImage
+    extra = 1
+
+class AnswerAdmin(admin.ModelAdmin):
+    inlines = [AnswerImageInline]
+
+class LevelQuestionInline(admin.TabularInline):
+    model = LevelQuestion
+    extra = 1
+    autocomplete_fields = ['question']
+    ordering = ['order']
+
+
+
+
 class LocationAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
 
+class QuestionAdmin(admin.ModelAdmin):
+    inlines = [QuestionImageInline]
+    search_fields = ['text', 'translation']
+
 class LevelsAdmin(admin.ModelAdmin):
+    list_display = ['title', 'location', 'type']
     prepopulated_fields = {"slug": ("title",)}
+    inlines = [LevelQuestionInline]
+
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Levels, LevelsAdmin)
-admin.site.register(Question)
-admin.site.register(Answer)
+admin.site.register(Question, QuestionAdmin)
+admin.site.register(Answer, AnswerAdmin)
 admin.site.register(Boss)
 admin.site.register(Word)
 

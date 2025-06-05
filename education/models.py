@@ -203,10 +203,15 @@ class UserProgress(models.Model):
 
 class Question(models.Model):
     text = models.TextField()
+    translation = models.TextField(verbose_name="Перевод", blank=True, null=True)
 
     class Meta:
         verbose_name = 'Вопрос'
         verbose_name_plural = 'Вопросы'
+
+    def __str__(self):
+        return self.text
+
 
 class Answer(models.Model):
     question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
@@ -221,22 +226,62 @@ class Answer(models.Model):
 class LevelQuestion(models.Model):
     level = models.ForeignKey('Levels', on_delete=models.CASCADE, related_name='level_questions')
     question = models.ForeignKey('Question', on_delete=models.CASCADE)
+    order = models.PositiveIntegerField(default=0, verbose_name='Порядок')
 
     class Meta:
         verbose_name = 'Вопрос уровня'
         verbose_name_plural = 'Вопросы уровней'
+        ordering = ['order']  # порядок отображения вопросов
+        unique_together = ('level', 'question')  # один и тот же вопрос — один раз на уровне
+    
+    def __str__(self):
+        return f"{self.level.title} → {self.order + 1}. {self.question.text[:30]}"
+
+
+class QuestionImage(models.Model):
+    question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='question_images/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Изображение к вопросу'
+        verbose_name_plural = 'Изображения к вопросам'
+
+class AnswerImage(models.Model):
+    answer = models.ForeignKey('Answer', on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='answer_images/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Изображение к ответу'
+        verbose_name_plural = 'Изображения к ответам'
 
 
 class Boss(models.Model):
     level = models.ForeignKey('Levels', on_delete=models.CASCADE, related_name='boss')
     boss_name = models.CharField(max_length=100)
     desc = models.TextField(blank=True)
+    image         = models.ImageField(
+        upload_to='boss_images/',
+        blank=True,               
+        null=True,
+        verbose_name='Изображение'
+    )
+    hp            = models.PositiveIntegerField(
+        default=1,
+        verbose_name='Максимальное HP'
+    )
     reward_exp = models.PositiveIntegerField(default=0)
     reward_coins = models.PositiveIntegerField(default=0)
 
     class Meta:
         verbose_name = 'Босс'
         verbose_name_plural = 'Боссы'
+    
+    def __str__(self):
+        return self.boss_name
+
+    # удобный генератор сегментов для шаблона
+    def hp_segments(self):
+        return range(self.hp)
 
 
 
