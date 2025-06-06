@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="level_details">
+
+  <div class="progress-bar sticky-progress">
+    {% for question in level.level_questions.all %}
+      <div class="progress-square {% if question.id in completed_ids %}done{% endif %}">
+        {% if question.id in completed_ids %}
+          ✔
+        {% else %}
+          {{ forloop.counter }}
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="question-block">
+    <p class="question-text">{{ current_question.text }}</p>
+
+    {% if current_question.images.all %}
+      <div class="question-images">
+        {% for img in current_question.images.all %}
+          <img src="{{ img.image.url }}" alt="Изображение к вопросу">
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if current_question.answers.exists %}
+      <form method="post" class="answer-form">
+        {% csrf_token %}
+        {% for answer in current_question.answers.all %}
+          <button class="next-btn" name="answer" value="{{ answer.id }}">{{ answer.text }}</button>
+        {% endfor %}
+      </form>
+    {% else %}
+      <form method="post" class="answer-form">
+        {% csrf_token %}
+        <button class="next-btn" name="next" value="1">Далее</button>
+      </form>
+    {% endif %}
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const questionBlock = document.querySelector(".question-block");
+    if (questionBlock) {
+      questionBlock.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+</script>
+{% endblock %}

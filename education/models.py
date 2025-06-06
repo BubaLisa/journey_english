@@ -90,6 +90,8 @@ class Levels(models.Model):
         THEORY = 'TH', 'Теория'
         TRIAL = 'TR', 'Испытание'
         BOSS = 'BS', 'Босс-файт'
+    
+    order = models.PositiveIntegerField(default=0)
 
     location = models.ForeignKey(
         'Location',
@@ -132,7 +134,7 @@ class Levels(models.Model):
     class Meta:
         verbose_name = 'Уровень'
         verbose_name_plural = 'Уровни'
-        ordering = ['location', 'type']
+        ordering = ['location', 'order']
         constraints = [
             models.CheckConstraint(
                 check=(models.Q(type='TH', coins_reward=0) |

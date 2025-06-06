@@ -11,7 +11,7 @@ body {
     font-family: 'Roboto', sans-serif;
     line-height: 1.6;
     margin: 0;
-    padding: 0;
+    padding: 100px;
 }
 
 header {
@@ -27,6 +27,11 @@ header {
     right: 0;
     z-index: 1000;
     border-bottom: 2px solid #000;
+}
+
+a {
+    text-decoration: none;
+    color: black;
 }
 
 .logo img {
@@ -107,8 +112,8 @@ h2 {
 
 .level-title {
     position: relative;
-    width: 110px;
-    padding: 8px 0;
+    width: 65px;
+    padding: 4px;
     text-align: center;
     border: 2px solid #000000;
     border-radius: 10px;
@@ -120,7 +125,8 @@ h2 {
 }
 
 .level-title:hover::after {
-    content: attr(data-level-type) "\a" 
+    content: attr(data-level-title) "\a"
+             attr(data-level-type) "\a" 
              attr(data-exp-reward) " опыта" "\a"
              attr(data-coins-reward) " монет";
     white-space: pre;
@@ -171,6 +177,38 @@ h2 {
     margin-top: 30px;
 }
 
+.level-icon {
+    display: flex;
+    flex-direction: column;   /* если позже добавишь подпись под иконкой */
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 60px;
+    padding: 2px;
+}
+
+.level-title:hover .theory-icon {
+  filter: brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(541%) hue-rotate(85deg) brightness(96%) contrast(92%);
+}
+.level-title:hover.theory {
+  border-color: #3ad643;
+}
+
+/* Испытание — жёлтое */
+.level-title:hover .trial-icon {
+  filter: brightness(0) saturate(100%) invert(75%) sepia(91%) saturate(745%) hue-rotate(6deg) brightness(103%) contrast(103%);
+}
+.level-title:hover.trial {
+  border-color: #f1c40f;
+}
+
+/* Босс — красное */
+.level-title:hover .boss-icon {
+  filter: brightness(0) saturate(100%) invert(21%) sepia(94%) saturate(6292%) hue-rotate(352deg) brightness(94%) contrast(121%);
+}
+.level-title:hover.boss {
+  border-color: #e74c3c;
+}
 /* Страничка регистрации*/
 
 .registration-form {
@@ -216,4 +254,150 @@ h2 {
 
 .btn:hover {
     background: #0056b3;
+}
+
+/* Стили уровней*/
+
+.level_details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: 80vh;
+  box-sizing: border-box;
+}
+
+.progress-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.sticky-progress {
+  position: sticky;
+  top: 80px; /* чтобы прилипал под header */
+  background: white;
+  z-index: 1000;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.progress-square {
+  width: 32px;
+  height: 32px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.progress-square.done {
+  background-color: #b0ffb0;
+}
+
+.question-block {
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 600px;
+  width: 100%;
+  background-color: #fff;
+}
+
+.question-text {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.question-images img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 16px;
+  border-radius: 8px;
+}
+
+.answer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.next-btn {
+  border: 2px solid #000;
+  background-color: #fff;
+  color: #000;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.next-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.error {
+  color: red;
+  margin-top: 16px;
+}
+
+.error-msg {
+  color: red;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* level_completed styles*/
+
+.level-complete-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40px 20px;
+  text-align: center;
+  border: 2px solid #000;
+  border-radius: 16px;
+  background-color: #fff;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.congrats-title {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.reward-text {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.reward-info {
+  font-size: 1.25rem;
+  margin-bottom: 24px;
+}
+
+.back-to-map-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: 2px solid #000;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #000;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.back-to-map-btn:hover {
+  background-color: #000;
+  color: #fff;
 }

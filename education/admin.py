@@ -37,6 +37,7 @@ class LevelQuestionInline(admin.TabularInline):
     extra = 1
     autocomplete_fields = ['question']
     ordering = ['order']
+    fields = ['question', 'order']
 
 
 
@@ -49,9 +50,10 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = ['text', 'translation']
 
 class LevelsAdmin(admin.ModelAdmin):
-    list_display = ['title', 'location', 'type']
+    list_display = ['title', 'location', 'type', 'order']
     prepopulated_fields = {"slug": ("title",)}
     inlines = [LevelQuestionInline]
+    ordering = ['order']
 
 
 admin.site.register(CustomUser, CustomUserAdmin)

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="level-complete-container">
+  <h1 class="congrats-title">Поздравляем!</h1>
+  <p class="reward-text">Уровень пройден</p>
+  <p class="reward-info">Вы получили <strong>{{ exp }}</strong> опыта и <strong>{{ coins }}</strong> монет</p>
+  <a href="{% url 'location_map' slug=level.location.slug %}" class="back-to-map-btn">Вернуться на карту локации</a>
+</div>
+{% endblock %}
