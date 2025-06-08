@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- ─────────── 1. ПРОГРЕСС-БАР ─────────── -->
+<div class="progress-bar sticky-progress">
+  {% for i in total|make_list %}
+    {% with idx=forloop.counter0 %}
+      <div class="progress-square {% if idx < step %}done{% endif %}">
+        {% if idx < step %}✔{% else %}{{ forloop.counter }}{% endif %}
+      </div>
+    {% endwith %}
+  {% endfor %}
+</div>
+
+<!-- ─────────── 2. ОСНОВНОЙ ЭКРАН ─────────── -->
+<main class="level_trial">
+  <!-- слово на русском -->
+  <div class="question-block-trial">
+    <p>Переведи это слово на английский:</p>
+    <p class="word-rus">{{ question.translation }}</p>
+  </div>
+  <!-- анимация белки -->
+  <div class="squirrel-wrapper">
+    <img id="squirrel"
+         src="{% static 'img/squirrel_1.svg' %}"
+         alt="Белка">
+  </div>
+
+  <!-- форма ввода -->
+   <div class="trial-form-container">
+    <form method="post" id="trial-form" autocomplete="off">
+        {% csrf_token %}
+        <input type="text"
+            name="user_answer"
+            class="translation-input"
+            placeholder="Введите перевод"
+            autofocus>
+        <button type="submit" class="next-btn">Проверить</button>
+    </form>
+   </div>
+
+  <!-- сообщение о попытках -->
+  {% if result == "wrong" %}
+      <p class="error">
+        Неверно. Осталось {{ attempts_left }} попыт{{ attempts_left|pluralize:"ка,ки,ок" }}.
+      </p>
+  {% endif %}
+</main>
+
+<!-- ─────────── 3. JS: анимация и переходы ─────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const squirrel   = document.getElementById('squirrel');
+  const imgPath    = "{% static 'img/' %}";
+  const successSeq = ['squirrel_1.svg', 'squirrel_2.svg', 'squirrel_3.svg'];
+  const failSeq    = ['squirrel_1.svg', 'squirrel_2.svg', 'squirrel_fail.svg'];
+
+  /** Покадрово проигрываем массив SVG, затем вызываем callback */
+  function play(seq, cb) {
+    let i = 0;
+    const next = () => {
+      if (i < seq.length) {
+        squirrel.src = imgPath + seq[i++];
+        setTimeout(next, 350);        // 3 кадра × 0.2 с
+      } else if (cb) cb();
+    };
+    next();
+  }
+
+  {% if result == "success" %}
+      play(successSeq, () => window.location = "{{ next_url }}");
+  {% elif result == "fail" %}
+      play(failSeq,    () => window.location = "{{ fail_url }}");
+  {% endif %}
+});
+</script>
+{% endblock %}

@@ -29,6 +29,10 @@ class QuestionPhraseInline(admin.TabularInline):
     model = QuestionPhrase
     extra = 1
 
+class AnswerInline(admin.TabularInline):
+    model  = Answer
+    extra  = 1
+
 class AnswerImageInline(admin.TabularInline):
     model = AnswerImage
     extra = 1
@@ -43,6 +47,7 @@ class LevelQuestionInline(admin.TabularInline):
 
 
 
+
 class AnswerAdmin(admin.ModelAdmin):
     inlines = [AnswerImageInline]
 
@@ -50,7 +55,7 @@ class LocationAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
 
 class QuestionAdmin(admin.ModelAdmin):
-    inlines = [QuestionImageInline, QuestionPhraseInline]
+    inlines = [QuestionImageInline, QuestionPhraseInline, AnswerInline]
     search_fields = [
         'phrases__text',
         'phrases__translation',
@@ -60,7 +65,6 @@ class LevelsAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
     inlines = [LevelQuestionInline]
     ordering = ['order']
-    filter_horizontal = ('words',)
 
 
 admin.site.register(CustomUser, CustomUserAdmin)

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="level-complete-container">
+  <h1 class="congrats-title">Упс… Белка не долетела!</h1>
+  <p class="reward-text">Испытание не пройдено.</p>
+
+  <a href="{% url 'level_trial' slug=level.slug step=0 %}"
+     class="back-to-map-btn">
+     Попробовать заново
+  </a>
+  <a href="{% url 'location_map' slug=level.location.slug %}"
+     class="back-to-map-btn">
+     Вернуться на карту
+  </a>
+</div>
+{% endblock %}

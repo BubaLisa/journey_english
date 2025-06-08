@@ -13,5 +13,6 @@ urlpatterns = [
     path("<slug:slug>/", views.location_map, name="location_map"),
     path("level/<slug:slug>/", views.level_detail, name="level_detail"),
     path("level/<slug:slug>/step/<int:step>/", views.level_detail, name="level_detail_step"),
-    path('levels/<slug:slug>/trial/', views.trial_level_view, name='trial_level'),
+    path("level/trial/<slug:slug>/<int:step>/", views.level_trial, name="level_trial"),
+    path("level/<slug:slug>/fail/", views.level_fail, name="level_fail"),
 ]

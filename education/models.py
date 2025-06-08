@@ -113,12 +113,6 @@ class Levels(models.Model):
         verbose_name='Тип уровня'
     )
 
-    words = models.ManyToManyField(
-        'Word',
-        related_name='levels',
-        blank=True,
-        verbose_name='Слова на уровне'
-    )
         
     exp_reward = models.PositiveIntegerField(
         verbose_name='Награда опыта',
@@ -238,12 +232,15 @@ class QuestionPhrase(models.Model):
 
 class Answer(models.Model):
     question = models.ForeignKey('Question', on_delete=models.CASCADE, related_name='answers')
-    text = models.TextField()
+    text = models.CharField(max_length=255)
     is_correct = models.BooleanField()
 
     class Meta:
         verbose_name = 'Ответ'
         verbose_name_plural = 'Ответы'
+
+    def __str__(self):
+        return self.text
 
 
 class LevelQuestion(models.Model):

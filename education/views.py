@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse, Http404
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.text import slugify
 from django.db import IntegrityError
 
 from .models import Location, Levels, LevelQuestion, Answer, Word
@@ -104,10 +105,19 @@ def location_detail(request, slug):
     return render(request, "app/location_detail.html", {"location": location})
 
 
+MAX_ATTEMPTS = 3   
+
+def normalise(txt: str) -> str:
+    return slugify(txt.strip().lower())
+
 
 def level_detail(request, slug, step=0):
     level = get_object_or_404(Levels.objects.prefetch_related('level_questions__question__answers', 'level_questions__question__images'), slug=slug)
     level_questions = list(level.level_questions.all().order_by('id'))  # Можно добавить поле `order`, если нужно
+
+    if level.type == Levels.LevelType.TRIAL:
+            return redirect("level_trial", slug=slug, step=step)
+
 
     if step == 0:
         previous_level = Levels.objects.filter(location=level.location, order=level.order - 1).first()
@@ -204,45 +214,58 @@ def level_detail(request, slug, step=0):
         "error": error,
     })
 
-def trial_level_view(request, slug):
-    level = get_object_or_404(Levels, slug=slug)
-    words = list(level.words.all())
+def level_trial(request, slug, step=0):
+    level = get_object_or_404(
+        Levels.objects.prefetch_related(
+            "level_questions__question__answers",
+            "level_questions__question__images",
+        ),
+        slug=slug,
+        type=Levels.LevelType.TRIAL,
+    )
 
-    if not words:
-        return render(request, 'level_empty.html', {'level': level})
+    level_questions = list(level.level_questions.all().order_by("id"))
+    if not level_questions:
+        return render(request, "app/level_empty.html", {"level": level})
 
-    # Получаем индекс текущего слова из сессии
-    index = request.session.get(f'trial_word_index_{slug}', 0)
+    if step >= len(level_questions):
+        return render(request, "app/level_completed.html", {"level": level})
 
-    idx_key   = f'trial_idx_{slug}'
-    fail_key  = f'trial_fail_{slug}'      # счётчик ошибок
-    index     = request.session.get(idx_key, 0)
-    fails     = request.session.get(fail_key, 0)
+    question = level_questions[step].question
+    correct_answers = {
+        normalise(ans.text)
+        for ans in question.answers.filter(is_correct=True)
+    }
 
+    attempts_key = f"trial_attempts_{slug}_{step}"
+    attempts = request.session.get(attempts_key, 0)
+    result = None
 
-    if index >= len(words):
-        request.session.pop(idx_key, None)
-        request.session.pop(fail_key, None)
-        return render(request, 'trial_level_complete.html', {'level': level})
-
-    word = words[index]
-    context = {'level': level, 'word': word}
-
-    if request.method == 'POST':
-        answer = request.POST.get('answer', '').strip().lower()
-        if answer == word.translation.lower():
-            # успех: переходим к следующему слову
-            request.session[idx_key] = index + 1
-            request.session[fail_key] = 0
-            context['correct'] = True
+    if request.method == "POST":
+        user_answer = normalise(request.POST.get("user_answer", ""))
+        if user_answer in correct_answers:
+            result = "success"
+            request.session.pop(attempts_key, None)
         else:
-            fails += 1
-            if fails >= 3:
-                # неудача: показываем падение
-                context['failed'] = True
-                fails = 0                      # обнуляем счётчик
+            attempts += 1
+            request.session[attempts_key] = attempts
+            if attempts >= MAX_ATTEMPTS:
+                result = "fail"
+                request.session.pop(attempts_key, None)
             else:
-                context['error'] = f"Неправильно… Попыток осталось: {3 - fails}"
-            request.session[fail_key] = fails
+                result = "wrong"
 
-    return render(request, 'trial_level.html', context)
+    return render(request, "app/level_trial.html", {
+        "level": level,
+        "question": question,
+        "step": step,
+        "total": len(level_questions),
+        "result": result,
+        "attempts_left": MAX_ATTEMPTS - attempts,
+        "next_url": reverse("level_trial", kwargs={"slug": slug, "step": step + 1}),
+        "fail_url": reverse("level_fail", kwargs={"slug": slug}),
+    })
+
+def level_fail(request, slug: str):
+    level = get_object_or_404(Levels, slug=slug, type=Levels.LevelType.TRIAL)
+    return render(request, "app/level_fail.html", {"level": level})
