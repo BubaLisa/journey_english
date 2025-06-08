@@ -2,7 +2,6 @@
 
 {% block content %}
 <div class="empty-level-message">
-  <h2>{{ level.title }}</h2>
   <p>Ой-ой, кажется этот уровень еще не разработали</p>
   <a href="{% url 'location_map' slug=level.location.slug %}" class="back-to-map-btn">Вернуться на карту локации</a>
 </div>

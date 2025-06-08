@@ -112,6 +112,14 @@ class Levels(models.Model):
         choices=LevelType.choices,
         verbose_name='Тип уровня'
     )
+
+    words = models.ManyToManyField(
+        'Word',
+        related_name='levels',
+        blank=True,
+        verbose_name='Слова на уровне'
+    )
+        
     exp_reward = models.PositiveIntegerField(
         verbose_name='Награда опыта',
         default=0,
@@ -210,6 +218,19 @@ class Question(models.Model):
     class Meta:
         verbose_name = 'Вопрос'
         verbose_name_plural = 'Вопросы'
+
+    def __str__(self):
+        return self.text
+
+
+class QuestionPhrase(models.Model):
+    question = models.ForeignKey(Question, related_name='phrases', on_delete=models.CASCADE)
+    text = models.TextField("Текст")
+    translation = models.TextField("Перевод")
+
+    class Meta:
+        verbose_name = "Фраза вопроса"
+        verbose_name_plural = "Фразы вопросов"
 
     def __str__(self):
         return self.text

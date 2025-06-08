@@ -1,3 +1,12 @@
+/*'Andy Bold Cyrillic Fixed'*/
+@font-face {
+    font-family: 'Samsung Myanmar Regular';
+    src: url('../fonts/Samsung Myanmar Regular.ttf') format('ttf');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
 * {
     margin: 0;
     padding: 0;
@@ -13,7 +22,7 @@ body {
     margin: 0;
     padding: 100px;
 }
-
+/* header */
 header {
     background-color: #ffffff;
     display: flex;
@@ -28,6 +37,105 @@ header {
     z-index: 1000;
     border-bottom: 2px solid #000;
 }
+
+.res-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.level-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.level-circle {
+    --size: 60px;
+    --border-width: 4px;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    border: 2px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    background: #fff;
+    position: relative;
+}
+
+/* Прогресс по опыту в круге */
+.level-circle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(#4CAF50 var(--p), transparent var(--p));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--border-width)), #fff calc(100% - var(--border-width)));
+    mask: radial-gradient(farthest-side, transparent calc(100% - var(--border-width)), #fff calc(100% - var(--border-width)));
+    z-index: 0;
+}
+
+.level-circle::after {
+    content: '';
+    position: absolute;
+    inset: var(--border-width);
+    border-radius: 50%;
+    background: white;
+    z-index: 0;
+}
+
+.level-circle span {
+    position: relative;
+    z-index: 1;
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* Tooltip с опытом */
+.level-tooltip {
+    display: none;
+    position: absolute;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 14px;
+    white-space: nowrap;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+/* Показываем тултип при наведении */
+.level-wrapper:hover .level-tooltip {
+    display: block;
+}
+
+
+/* Контент тултипа через атрибуты */
+.level-tooltip::before {
+    content: attr(data-tooltip);
+}
+
+.coins {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+    font-size: 25px;
+}
+
+.coins img { inline-size: 50px; }
+
 
 a {
     text-decoration: none;
@@ -51,6 +159,8 @@ nav {
     height: 100%;
     display: flex;
     align-items: center;
+    gap: 12px;
+    justify-content: space-between;
 }
 
 /* Ссылки в навигации */
@@ -76,6 +186,7 @@ nav {
     background-color: #000;
     color: #fff;
 }
+
 .content {
     max-width: 600px;
     margin: 0 auto;
@@ -209,6 +320,14 @@ h2 {
 .level-title:hover.boss {
   border-color: #e74c3c;
 }
+
+.level-title.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  color: gray;
+  pointer-events: none; /* Чтобы нельзя было кликнуть */
+}
+
 /* Страничка регистрации*/
 
 .registration-form {
@@ -238,9 +357,13 @@ h2 {
 }
 
 .error {
-    color: red;
+    color: rgb(0, 0, 0);
     font-size: 0.9em;
     margin-top: 5px;
+}
+
+.error-login {
+  color: red;
 }
 
 .btn {
@@ -341,16 +464,6 @@ h2 {
   background-color: #f0f0f0;
 }
 
-.error {
-  color: red;
-  margin-top: 16px;
-}
-
-.error-msg {
-  color: red;
-  font-weight: bold;
-  margin-top: 10px;
-}
 
 /* level_completed styles*/
 

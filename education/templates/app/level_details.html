@@ -4,9 +4,9 @@
 <div class="level_details">
 
   <div class="progress-bar sticky-progress">
-    {% for question in level.level_questions.all %}
-      <div class="progress-square {% if question.id in completed_ids %}done{% endif %}">
-        {% if question.id in completed_ids %}
+    {% for lq in level_questions %}
+      <div class="progress-square {% if lq.id in completed_ids %}done{% endif %}">
+        {% if lq.id in completed_ids %}
           ✔
         {% else %}
           {{ forloop.counter }}
@@ -16,7 +16,21 @@
   </div>
 
   <div class="question-block">
-    <p class="question-text">{{ current_question.text }}</p>
+    {# Основной текст вопроса всегда показываем #}
+    <p class="question-text" title="{{ current_question.translation|default:'' }}">
+      {{ current_question.text }}
+    </p>
+
+    {# Если есть связанные фразы — показываем их ниже #}
+    {% if current_question.phrases.exists %}
+      <div class="question-phrases">
+        {% for phrase in current_question.phrases.all %}
+          <p class="question-text" title="{{ phrase.translation|default:'' }}">
+            {{ phrase.text }}
+          </p>
+        {% endfor %}
+      </div>
+    {% endif %}
 
     {% if current_question.images.all %}
       <div class="question-images">
@@ -41,7 +55,7 @@
     {% endif %}
 
     {% if error %}
-        <p class="error">{{ error }}</p>
+      <p class="error">{{ error }}</p>
     {% endif %}
   </div>
 </div>
@@ -55,3 +69,4 @@
   });
 </script>
 {% endblock %}
+

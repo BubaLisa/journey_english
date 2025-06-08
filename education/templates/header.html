@@ -7,8 +7,28 @@
     </div>
     <nav>
         <div class="nav-links">
+            {% if user.is_authenticated %}
+                <div class="nav-link"><a href="{% url 'logout' %}">Выход</a></div>
+            {% else %}
             <div class="nav-link"><a href="{% url 'register' %}">Регистрация</a></div>
-            <div class="nav-link"><a href="">Вход</a></div>
+            <div class="nav-link"><a href="{% url 'login' %}">Вход</a></div>
+            {% endif %}
         </div>
+    
+    
+    {% if user.is_authenticated or guest_mode %}
+        <div class="res-info">
+            <div class="level-wrapper">
+                <div class="level-circle" style="--p: {{ level_progress }}%">
+                    <span>{{ user_level }}</span>
+                </div>
+                <div class="level-tooltip" data-tooltip="{{ user_exp }}/{{ next_level_exp }} exp"></div>
+            </div>
+            <div class="coins">
+                <img src="{% static 'img/coin_icon.svg' %}" alt="монета">
+                × {{ user_coins }}
+            </div>
+        </div>
+    {% endif %}
     </nav>
 </header>
