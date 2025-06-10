@@ -214,6 +214,8 @@ def level_detail(request, slug, step=0):
         "error": error,
     })
 
+
+
 def level_trial(request, slug, step=0):
     level = get_object_or_404(
         Levels.objects.prefetch_related(
@@ -223,18 +225,69 @@ def level_trial(request, slug, step=0):
         slug=slug,
         type=Levels.LevelType.TRIAL,
     )
+    level_questions = list(level.level_questions.all().order_by('id'))
+    total_questions = len(level_questions)
 
-    level_questions = list(level.level_questions.all().order_by("id"))
-    if not level_questions:
+    if not total_questions:
         return render(request, "app/level_empty.html", {"level": level})
 
-    if step >= len(level_questions):
-        return render(request, "app/level_completed.html", {"level": level})
+    # Проверка предыдущего уровня (добавляем в начало функции)
+    if step == 0:
+        previous_level = Levels.objects.filter(
+            location=level.location, 
+            order=level.order - 1
+        ).first()
+        
+        if previous_level:
+            passed_levels = request.session.get('passed_levels', [])
+            if previous_level.slug not in passed_levels and previous_level.type != Levels.LevelType.TRIAL:
+                messages.error(request, "Вы должны пройти предыдущий уровень, прежде чем начать этот.")
+                return redirect("index")
 
-    question = level_questions[step].question
+    # Получаем или инициализируем данные о прогрессе
+    session_key = f"level_progress_{slug}"
+    level_progress = request.session.get(session_key, {
+        'completed_steps': [],
+        'passed': False
+    })
+
+    # Если уровень уже пройден, но нет completed_steps, заполняем все шаги
+    if level_progress['passed'] and not level_progress['completed_steps']:
+        level_progress['completed_steps'] = list(range(total_questions))
+        request.session[session_key] = level_progress
+        request.session.modified = True
+
+    # Завершение уровня
+    if step >= total_questions:
+        is_repeat = level_progress['passed']
+        
+        if is_repeat:
+            exp_to_add = math.floor(level.exp_reward / 2)
+            coins_to_add = 0
+        else:
+            exp_to_add = level.exp_reward
+            coins_to_add = level.coins_reward
+            level_progress['passed'] = True
+            request.session[session_key] = level_progress
+            # Добавляем в общий список пройденных уровней
+            passed_levels = request.session.get('passed_levels', [])
+            if level.slug not in passed_levels:
+                passed_levels.append(level.slug)
+                request.session['passed_levels'] = passed_levels
+            request.session.modified = True
+
+        add_resources(request, exp=exp_to_add, coins=coins_to_add)
+        return render(request, "app/level_completed.html", {
+            "level": level,
+            "exp": exp_to_add,
+            "coins": coins_to_add,
+        })
+    
+    # Обработка текущего вопроса
+    current_question = level_questions[step].question
     correct_answers = {
         normalise(ans.text)
-        for ans in question.answers.filter(is_correct=True)
+        for ans in current_question.answers.filter(is_correct=True)
     }
 
     attempts_key = f"trial_attempts_{slug}_{step}"
@@ -246,6 +299,10 @@ def level_trial(request, slug, step=0):
         if user_answer in correct_answers:
             result = "success"
             request.session.pop(attempts_key, None)
+            if step not in level_progress['completed_steps']:
+                level_progress['completed_steps'].append(step)
+                request.session[session_key] = level_progress
+                request.session.modified = True
         else:
             attempts += 1
             request.session[attempts_key] = attempts
@@ -254,13 +311,24 @@ def level_trial(request, slug, step=0):
                 request.session.pop(attempts_key, None)
             else:
                 result = "wrong"
+    
+    completed_ids = [
+        level_questions[s].id
+        for s in level_progress['completed_steps']
+        if s < len(level_questions)
+    ]
 
     return render(request, "app/level_trial.html", {
         "level": level,
-        "question": question,
+        "level_questions": level_questions,
+        "question": current_question,
         "step": step,
-        "total": len(level_questions),
         "result": result,
+        "total_questions": total_questions,
+        "completed_steps": level_progress['completed_steps'],
+        "completed_ids": completed_ids,
+        "result": result,
+        "current_question": current_question,
         "attempts_left": MAX_ATTEMPTS - attempts,
         "next_url": reverse("level_trial", kwargs={"slug": slug, "step": step + 1}),
         "fail_url": reverse("level_fail", kwargs={"slug": slug}),

@@ -4,12 +4,14 @@
 {% block content %}
 <!-- ─────────── 1. ПРОГРЕСС-БАР ─────────── -->
 <div class="progress-bar sticky-progress">
-  {% for i in total|make_list %}
-    {% with idx=forloop.counter0 %}
-      <div class="progress-square {% if idx < step %}done{% endif %}">
-        {% if idx < step %}✔{% else %}{{ forloop.counter }}{% endif %}
-      </div>
-    {% endwith %}
+  {% for lq in level_questions %}
+    <div class="progress-square {% if lq.id in completed_ids %}done{% endif %}">
+      {% if lq.id in completed_ids %}
+        ✔
+      {% else %}
+        {{ forloop.counter }}
+      {% endif %}
+    </div>
   {% endfor %}
 </div>
 
@@ -23,8 +25,8 @@
   <!-- анимация белки -->
   <div class="squirrel-wrapper">
     <img id="squirrel"
-         src="{% static 'img/squirrel_1.svg' %}"
-         alt="Белка">
+        src="{% static 'img/squirrel_1.svg' %}"
+        alt="Белка">
   </div>
 
   <!-- форма ввода -->
@@ -43,7 +45,7 @@
   <!-- сообщение о попытках -->
   {% if result == "wrong" %}
       <p class="error">
-        Неверно. Осталось {{ attempts_left }} попыт{{ attempts_left|pluralize:"ка,ки,ок" }}.
+        Неверно. Осталось попыток:{{ attempts_left }} .
       </p>
   {% endif %}
 </main>
