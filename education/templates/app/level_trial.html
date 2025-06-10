@@ -38,7 +38,7 @@
             class="translation-input"
             placeholder="Введите перевод"
             autofocus>
-        <button type="submit" class="next-btn">Проверить</button>
+        <button type="submit" class="next-btn" id="check-button">Проверить</button>
     </form>
    </div>
 
@@ -57,24 +57,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const imgPath    = "{% static 'img/' %}";
   const successSeq = ['squirrel_1.svg', 'squirrel_2.svg', 'squirrel_3.svg'];
   const failSeq    = ['squirrel_1.svg', 'squirrel_2.svg', 'squirrel_fail.svg'];
+  const checkBtn   = document.getElementById('check-button');
+  const form       = document.getElementById('trial-form');
+
+  /** Блокировка кнопки */
+  function lockButton() {
+    if (checkBtn) {
+      checkBtn.disabled = true;
+      checkBtn.classList.add('disabled'); // для визуального эффекта, по желанию
+    }
+  }
 
   /** Покадрово проигрываем массив SVG, затем вызываем callback */
   function play(seq, cb) {
+    lockButton();
     let i = 0;
     const next = () => {
       if (i < seq.length) {
         squirrel.src = imgPath + seq[i++];
-        setTimeout(next, 350);        // 3 кадра × 0.2 с
+        setTimeout(next, 350); // интервал между кадрами
       } else if (cb) cb();
     };
     next();
   }
 
+  // Блокировка кнопки на всякий случай и при отправке формы
+  form.addEventListener('submit', () => {
+    lockButton();
+  });
+
   {% if result == "success" %}
-      play(successSeq, () => window.location = "{{ next_url }}");
+    play(successSeq, () => window.location = "{{ next_url }}");
   {% elif result == "fail" %}
-      play(failSeq,    () => window.location = "{{ fail_url }}");
+    play(failSeq, () => window.location = "{{ fail_url }}");
   {% endif %}
 });
 </script>
+
 {% endblock %}

@@ -2,26 +2,58 @@
 {% load static %}
 
 {% block content %}
-<div class="content">
+<!-- .content стал relative, чтобы элементы колодца позиционировались абсолютом -->
+<div class="content relative">
   <h2>{{ location.title }}</h2>
   
+
+  <div class="well-container">
+    <img id="well"
+        src="{% static 'img/well.svg' %}"
+        alt="Колодец мудрости"
+        class="well-img"
+        >
+
+    {# поп-ап «Бросить монету?» #}
+    <div id="well-popup" class="hidden">
+        <p class="mb-2">
+          Бросить монетку в колодец? <br>Вы станете мудрее.
+        </p>
+
+        <div class="well-popup-btn-container">
+          <button id="well-btn" class="well-btn">
+              Бросить 1 монету
+          </button>
+          <button id="well-close" class="well-btn">нет</button>
+        </div>
+    </div>
+
+    {# здесь будет показываться случайная фраза #}
+    <div id="well-phrase"
+        class="absolute font-semibold text-center text-lime-700 hidden"
+        style="left: 25%; top: 45%; width: 220px;">
+    </div>
+  </div>
+
+
   <div class="level-path">
     {% for level in location.levels.all %}
       <div class="level-container">
-        <a 
-          href="{% url 'level_detail' slug=level.slug %}" 
-          class="level-title {% if level.type == 'TH' %}theory{% elif level.type == 'TR' %}trial{% elif level.type == 'BS' %}boss{% endif %}"
-          data-level-title="{{ level.title }}"
-          data-level-type="{{ level.get_type_display }}"
-          data-exp-reward="{{ level.exp_reward }}"
-          data-coins-reward="{{ level.coins_reward }}">
+        <a href="{% url 'level_detail' slug=level.slug %}"
+           class="level-title {% if level.type == 'TH' %}theory{% elif level.type == 'TR' %}trial{% elif level.type == 'BS' %}boss{% endif %}"
+           data-level-title="{{ level.title }}"
+           data-level-type="{{ level.get_type_display }}"
+           data-exp-reward="{{ level.exp_reward }}"
+           data-coins-reward="{{ level.coins_reward }}">
+
           {% if level.type == 'TH' %}
             <img src="{% static 'img/icons/theory.svg' %}" alt="{{ level.title }}" class="level-icon theory-icon">
           {% elif level.type == 'TR' %}
             <img src="{% static 'img/icons/challenge.svg' %}" alt="{{ level.title }}" class="level-icon trial-icon">
           {% elif level.type == 'BS' %}
-            <img src="{% static 'img/icons/boss.svg' %}" alt="{{ level.title }}" class="level-icon boss-icon">
+            <img src="{% static 'img/icons/boss.svg' %}"  alt="{{ level.title }}" class="level-icon boss-icon">
           {% endif %}
+
         </a>
       </div>
     {% empty %}
@@ -29,4 +61,62 @@
     {% endfor %}
   </div>
 </div>
+
+
+<script>
+  const CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+
+<script>
+(function () {
+    const well      = document.getElementById("well");
+    const popup     = document.getElementById("well-popup");
+    const phraseBox = document.getElementById("well-phrase");
+    const btn       = document.getElementById("well-btn");
+    const closeBtn  = document.getElementById("well-close");
+
+    // показать поп-ап
+    well.addEventListener("click", () => {
+        popup.classList.remove("hidden");
+    });
+
+    // закрыть поп-ап
+    closeBtn.addEventListener("click", () => {
+        popup.classList.add("hidden");
+    });
+
+    // бросить монету
+    btn.addEventListener("click", async () => {
+        btn.disabled = true;
+
+        const resp = await fetch("{% url 'well_toss' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": CSRF_TOKEN,
+                "Content-Type": "application/json"
+            },
+            body: "{}"
+        });
+
+        const data = await resp.json();
+        btn.disabled = false;
+        popup.classList.add("hidden");
+
+        if (data.success) {
+            phraseBox.textContent = data.phrase;
+            phraseBox.classList.remove("hidden");
+
+            const coinCounter = document.getElementById("coin-count");
+            if (coinCounter) {
+                coinCounter.textContent = data.coins;
+            }
+
+            // если у тебя есть элемент с монетами, обнови:
+            // document.getElementById("coin-count").textContent = data.coins;
+        } else {
+            alert(data.error);
+        }
+    });
+})();
+</script>
 {% endblock %}

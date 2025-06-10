@@ -11,6 +11,8 @@ urlpatterns = [
 
 
     path("<slug:slug>/", views.location_map, name="location_map"),
+    path("well/toss/", views.well_toss_view, name="well_toss"),
+
     path("level/<slug:slug>/", views.level_detail, name="level_detail"),
     path("level/<slug:slug>/step/<int:step>/", views.level_detail, name="level_detail_step"),
     path("level/trial/<slug:slug>/<int:step>/", views.level_trial, name="level_trial"),

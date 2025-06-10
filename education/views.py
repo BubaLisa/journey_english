@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from django.http import HttpResponse, Http404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, Http404, JsonResponse
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.text import slugify
@@ -11,8 +12,37 @@ from django.db import IntegrityError
 from .models import Location, Levels, LevelQuestion, Answer, Word
 from .forms import CustomUserCreationForm
 from .utils import add_resources
+from .services import toss_coin
 
 import math
+from functools import wraps
+
+
+def get_previous_level(level):
+    """Возвращает ближайший предыдущий уровень в той же локации."""
+    return (
+        Levels.objects
+        .filter(location=level.location, order__lt=level.order)
+        .order_by("-order")
+        .first()
+    )
+
+def require_prev_level_passed(view):
+    @wraps(view)
+    def wrapper(request, *args, **kwargs):
+        slug = kwargs.get("slug")
+        level = get_object_or_404(Levels, slug=slug)
+        prev_level = get_previous_level(level)
+
+        if prev_level:
+            passed = request.session.get("passed_levels", [])
+            if prev_level.slug not in passed:
+                messages.error(request, "Вы должны пройти предыдущий уровень, прежде чем начать этот.")
+                return redirect("index")
+
+        return view(request, *args, **kwargs)
+    return wrapper
+
 
 
 def index(request):
@@ -77,7 +107,7 @@ def location_map(request, slug):
     levels_with_access = []
 
     for level in location.levels.all().order_by('order'):
-        previous_level = Levels.objects.filter(location=level.location, order=level.order - 1).first()
+        previous_level = get_previous_level(level)
         access = not previous_level or previous_level.slug in passed_levels
 
         # Награды — уменьшаем опыт, если уровень уже пройден
@@ -105,28 +135,30 @@ def location_detail(request, slug):
     return render(request, "app/location_detail.html", {"location": location})
 
 
+@login_required
+def well_toss_view(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Только POST"}, status=400)
+
+    result = toss_coin(request.user)
+    status = 200 if result["success"] else 400
+    return JsonResponse(result, status=status)
+    
+
 MAX_ATTEMPTS = 3   
 
 def normalise(txt: str) -> str:
     return slugify(txt.strip().lower())
 
 
+@require_prev_level_passed
 def level_detail(request, slug, step=0):
     level = get_object_or_404(Levels.objects.prefetch_related('level_questions__question__answers', 'level_questions__question__images'), slug=slug)
     level_questions = list(level.level_questions.all().order_by('id'))  # Можно добавить поле `order`, если нужно
 
     if level.type == Levels.LevelType.TRIAL:
-            return redirect("level_trial", slug=slug, step=step)
+        return redirect("level_trial", slug=slug, step=step)
 
-
-    if step == 0:
-        previous_level = Levels.objects.filter(location=level.location, order=level.order - 1).first()
-
-        if previous_level:
-            passed_levels = request.session.get('passed_levels', [])
-            if previous_level.slug not in passed_levels:
-                messages.error(request, "Вы должны пройти предыдущий уровень, прежде чем начать этот.")
-                return redirect("index")
 
     if not level_questions:
         return render(request, "app/level_empty.html", {"level": level})
@@ -215,7 +247,7 @@ def level_detail(request, slug, step=0):
     })
 
 
-
+@require_prev_level_passed
 def level_trial(request, slug, step=0):
     level = get_object_or_404(
         Levels.objects.prefetch_related(
@@ -232,17 +264,8 @@ def level_trial(request, slug, step=0):
         return render(request, "app/level_empty.html", {"level": level})
 
     # Проверка предыдущего уровня (добавляем в начало функции)
-    if step == 0:
-        previous_level = Levels.objects.filter(
-            location=level.location, 
-            order=level.order - 1
-        ).first()
-        
-        if previous_level:
-            passed_levels = request.session.get('passed_levels', [])
-            if previous_level.slug not in passed_levels and previous_level.type != Levels.LevelType.TRIAL:
-                messages.error(request, "Вы должны пройти предыдущий уровень, прежде чем начать этот.")
-                return redirect("index")
+
+
 
     # Получаем или инициализируем данные о прогрессе
     session_key = f"level_progress_{slug}"
