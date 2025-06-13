@@ -445,6 +445,7 @@ h2 {
 
 .btn {
     color: #000;
+    background-color: white;
     text-decoration: none;
     font-weight: 500;
     padding: 8px 16px;
@@ -456,9 +457,10 @@ h2 {
     font-size: 20px;
 }
 
+
 .btn:hover {
     background-color: #000;
-    color: #fff;
+    color: white;
 }
 .text-center {
     text-align: center;

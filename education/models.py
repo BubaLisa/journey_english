@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from django.core.validators import MinValueValidator
 from django.utils.text import slugify
@@ -58,6 +59,19 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
     
+
+class LevelProgress(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    level = models.ForeignKey('Levels', on_delete=models.CASCADE)
+    completed_steps = models.JSONField(default=list)
+    passed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'level')
+
+    def __str__(self):
+        return f"{self.user.email} - {self.level.slug}"
+
 
 class Location(models.Model):
     title = models.CharField(
