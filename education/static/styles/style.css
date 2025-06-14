@@ -332,7 +332,6 @@ h2 {
 
 /* Колодец */
 
-/* 🪙 Колодец */
 
 .well-container{
   display: flex;
@@ -614,35 +613,6 @@ h2 {
   box-sizing: border-box;
 }
 
-.progress-bar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.sticky-progress {
-  position: sticky;
-  top: 80px;
-  background: white;
-  z-index: 1000;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-}
-
-.progress-square {
-  width: 32px;
-  height: 32px;
-  background-color: #e0e0e0;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-.progress-square.done {
-  background-color: #b0ffb0;
-}
 
 .question-block-trial {
   border: 2px solid #000000;
@@ -728,4 +698,126 @@ img#squirrel {
   gap: 15px;
   width: 300px;
   height: 100px;
+}
+
+/* boss level */
+
+.boss-info {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.boss-insc {
+    margin: 0;
+    font-size: 40px;
+    font-weight: lighter;
+    height: 40px;
+}
+
+.boss-name {
+    margin: 10px 0;
+    font-size: 32px;
+}
+
+/* HP-бар босса */
+.boss-hp {
+    margin: 20px auto;
+    max-width: 400px;
+    text-align: center;
+    height: 40px;
+}
+
+.hp-bar {
+    display: flex;
+    height: 30px;
+    border: 2px solid #000;
+    margin-bottom: 5px;
+}
+
+.hp-segment {
+    flex: 1;
+    border-right: 2px solid #000;
+    background-color: white;
+}
+
+.hp-segment:last-child {
+    border-right: none;
+}
+
+.hp-segment.dead {
+    background-color: black;
+}
+
+/* Поле битвы */
+.battlefield {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin: 50px 0;
+    height: 400px;
+    position: relative;
+}
+
+.hero {
+    width: 150px;
+    position: absolute;
+    left: 10%;
+    bottom: 0;
+}
+
+.boss {
+    width: 300px;
+    position: absolute;
+    right: 10%;
+    top: 0;
+}
+
+.hero img, .boss img {
+    width: 100%;
+    height: auto;
+    filter: grayscale(100%);
+}
+
+/* HP игрока */
+.player-hp {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 18px;
+}
+
+/* Форма ввода */
+.word-input-form {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.word-input-form input {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 2px solid black;
+    background: white;
+    color: black;
+    margin-right: 10px;
+    width: 300px;
+}
+
+.word-input-form button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background: black;
+    color: white;
+    border: 2px solid black;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.word-input-form button:hover {
+    background: white;
+    color: black;
+}
+
+.message {
+    text-align: center;
+    font-size: 18px;
+    margin: 20px 0;
 }

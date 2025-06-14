@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="boss-info">
+    <p class="boss-insc">Битва с боссом</p>
+    <h1 class="boss-name">{{ boss.boss_name }}</h1>
+
+<!-- Шкала HP босса -->
+    <div class="boss-hp">
+    
+    <div class="hp-bar">
+        {% for i in boss.hp_segments %}
+        <span class="hp-segment {% if i < boss_hp %}alive{% else %}dead{% endif %}"></span>
+        {% endfor %}
+    </div>
+    <p>Здоровье босса</p>
+    </div>
+</div>
+<!-- Спрайты -->
+<div class="battlefield">
+  <div class="hero"><img src="{% static 'img/squirrel_hero.svg' %}" alt="Герой"></div>  
+  <div class="boss"><img src="{% static 'img/fox_boss.svg' %}" alt="{{ boss.boss_name }}"></div>    
+  
+</div>
+
+<!-- HP игрока -->
+<div class="player-hp">
+  <div class="hp-bar">
+    {% for i in player_hp_segments %}
+      <span class="hp-segment {% if i < player_hp %}alive{% else %}dead{% endif %}"></span>
+    {% endfor %}
+  </div>
+  <p>Ваше здоровье</p>
+</div>
+
+<!-- Ввод -->
+<form method="post" class="word-input-form">
+  {% csrf_token %}
+  <input type="text" name="word_input" required placeholder="Введите слово..." autofocus>
+  <button type="submit">Атаковать</button>
+</form>
+
+{% if messages %}
+  <div class="messages-bottom">
+    {% for message in messages %}
+      <p class="message {{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% endblock %}

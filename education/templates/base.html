@@ -10,12 +10,12 @@
     </head>
     <body>
         {% include "header.html" %}
-        {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-      </ul>
+        {% if messages and not suppress_base_messages %}
+          <ul class="messages">
+            {% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+          </ul>
         {% endif %}
         {% block content %}
         {% endblock %}

@@ -39,25 +39,27 @@
   <div class="level-path">
     {% for level in location.levels.all %}
       <div class="level-container">
-        <a href="{% url 'level_detail' slug=level.slug %}"
-           class="level-title {% if level.type == 'TH' %}theory{% elif level.type == 'TR' %}trial{% elif level.type == 'BS' %}boss{% endif %}"
-           data-level-title="{{ level.title }}"
-           data-level-type="{{ level.get_type_display }}"
-           data-exp-reward="{{ level.exp_reward }}"
-           data-coins-reward="{{ level.coins_reward }}">
+        <a href="{% if level.type == 'BS' %}
+                    {% url 'level_boss' slug=level.slug %}
+                  {% else %}
+                    {% url 'level_detail' slug=level.slug %}
+                  {% endif %}"
+          class="level-title"
+          data-level-title="{{ level.title }}"
+          data-level-type="{{ level.get_type_display }}"
+          data-exp-reward="{{ level.exp_reward }}"
+          data-coins-reward="{{ level.coins_reward }}">
 
           {% if level.type == 'TH' %}
             <img src="{% static 'img/icons/theory.svg' %}" alt="{{ level.title }}" class="level-icon theory-icon">
           {% elif level.type == 'TR' %}
             <img src="{% static 'img/icons/challenge.svg' %}" alt="{{ level.title }}" class="level-icon trial-icon">
           {% elif level.type == 'BS' %}
-            <img src="{% static 'img/icons/boss.svg' %}"  alt="{{ level.title }}" class="level-icon boss-icon">
+            <img src="{% static 'img/icons/boss.svg' %}" alt="{{ level.title }}" class="level-icon boss-icon">
           {% endif %}
 
         </a>
       </div>
-    {% empty %}
-      <p class="empty-message">Нет уровней в этой локации.</p>
     {% endfor %}
   </div>
 </div>

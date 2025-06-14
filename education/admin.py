@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Location, Levels, Question, Answer, Boss, Word, QuestionImage, AnswerImage, LevelQuestion, QuestionPhrase
+from .models import CustomUser, Location, Levels, Question, Answer, Boss, Word, QuestionImage, AnswerImage, LevelQuestion, QuestionPhrase, BossWord, Achievements, UserAchievements
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -44,8 +44,47 @@ class LevelQuestionInline(admin.TabularInline):
     ordering = ['order']
     fields = ['question', 'order']
 
+class BossWordInline(admin.TabularInline):
+    model = BossWord
+    extra = 1
+    autocomplete_fields = ['word']
 
 
+class UserAchievementsInline(admin.TabularInline):
+    model = UserAchievements
+    extra = 0
+    autocomplete_fields = ['user']
+    readonly_fields = ['created_at', 'updated_at']
+    show_change_link = True
+
+
+
+
+class AchievementsAdmin(admin.ModelAdmin):
+    list_display = ['title', 'desc', 'icon_preview', 'short_condition']
+    search_fields = ['title', 'desc']
+    inlines = [UserAchievementsInline]
+    readonly_fields = ['icon_preview']
+    ordering = ['title']
+
+    def icon_preview(self, obj):
+        if obj.icon_url:
+            return format_html(f'<img src="{obj.icon_url}" style="height:40px;" />')
+        return "—"
+    icon_preview.short_description = "Иконка"
+
+    def short_condition(self, obj):
+        cond = obj.condition_json
+        return str(cond) if cond else "—"
+    short_condition.short_description = "Условия"
+
+
+class UserAchievementsAdmin(admin.ModelAdmin):
+    list_display = ['user', 'achievement', 'created_at']
+    list_filter = ['achievement', 'created_at']
+    autocomplete_fields = ['user', 'achievement']
+    readonly_fields = ['created_at', 'updated_at']
+    ordering = ['-created_at']
 
 
 class AnswerAdmin(admin.ModelAdmin):
@@ -66,12 +105,20 @@ class LevelsAdmin(admin.ModelAdmin):
     inlines = [LevelQuestionInline]
     ordering = ['order']
 
+class BossAdmin(admin.ModelAdmin):
+    inlines = [BossWordInline]
+
+
+class WordAdmin(admin.ModelAdmin):
+    search_fields = ['word', 'translation', 'category']
+
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Levels, LevelsAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Answer, AnswerAdmin)
-admin.site.register(Boss)
-admin.site.register(Word)
-
+admin.site.register(Boss, BossAdmin)
+admin.site.register(Word, WordAdmin)
+admin.site.register(Achievements, AchievementsAdmin)
+admin.site.register(UserAchievements, UserAchievementsAdmin)

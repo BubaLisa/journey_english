@@ -9,7 +9,7 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import IntegrityError
 
-from .models import Location, Levels, LevelQuestion, Answer, Word, LevelProgress
+from .models import Location, Levels, LevelQuestion, Answer, Word, LevelProgress, Boss, BossWord
 from .forms import CustomUserCreationForm
 from .utils import add_resources
 from .services import toss_coin
@@ -198,6 +198,8 @@ def level_detail(request, slug, step=0):
 
     if level.type == Levels.LevelType.TRIAL:
         return redirect("level_trial", slug=slug, step=step)
+    elif level.type == Levels.LevelType.BOSS:
+        return redirect("level_boss", slug=slug)
 
     if not level_questions:
         return render(request, "app/level_empty.html", {"level": level})
@@ -337,6 +339,13 @@ def level_trial(request, slug, step=0):
             else:
                 session_progress['passed'] = True
                 request.session[session_key] = session_progress
+
+                # Обновляем список пройденных уровней в сессии
+                passed_levels = request.session.get("passed_levels", [])
+                if slug not in passed_levels:
+                    passed_levels.append(slug)
+                    request.session["passed_levels"] = passed_levels
+
                 request.session.modified = True
 
         add_resources(request, exp=exp_to_add, coins=coins_to_add)
@@ -403,6 +412,99 @@ def level_trial(request, slug, step=0):
     })
 
 
+
+
+
+@require_prev_level_passed
+def level_boss(request, slug):
+    level = get_object_or_404(Levels, slug=slug, type=Levels.LevelType.BOSS)
+    boss = get_object_or_404(Boss, level=level)
+
+    boss_words_qs = BossWord.objects.filter(boss=boss).select_related('word')
+    valid_words = {bw.word.word.lower() for bw in boss_words_qs}
+
+    session_key = f"bossfight_{slug}"
+    bossfight = request.session.get(session_key, {
+        'boss_hp': boss.hp,
+        'player_hp': 5,
+        'used_words': [],
+    })
+
+    message = None
+
+    if request.method == 'POST':
+        word = request.POST.get('word_input', '').strip().lower()
+
+        if word in bossfight['used_words']:
+            messages.warning(request, "Это слово уже было использовано!")
+        elif word in valid_words:
+            bossfight['boss_hp'] -= 1
+            bossfight['used_words'].append(word)
+            messages.success(request, "Успешная атака!")
+        else:
+            bossfight['player_hp'] -= 1
+            messages.error(request, "Промах! Вы потеряли здоровье.")
+
+        # Победа
+        if bossfight['boss_hp'] <= 0:
+            del request.session[session_key]
+
+            is_repeat = False
+            if request.user.is_authenticated:
+                progress, created = LevelProgress.objects.get_or_create(user=request.user, level=level)
+                is_repeat = progress.passed
+                progress.passed = True
+                progress.save()
+            else:
+                passed_levels = request.session.get("passed_levels", [])
+                if slug not in passed_levels:
+                    passed_levels.append(slug)
+                    request.session["passed_levels"] = passed_levels
+                request.session.modified = True
+                is_repeat = slug in passed_levels
+
+            exp_to_add = boss.reward_exp // 2 if is_repeat else boss.reward_exp
+            coins_to_add = 0 if is_repeat else boss.reward_coins
+
+            add_resources(request, exp=exp_to_add, coins=coins_to_add)
+
+            return render(request, "app/level_completed.html", {
+                "level": level,
+                "exp": exp_to_add,
+                "coins": coins_to_add,
+            })
+
+        # Поражение
+        if bossfight['player_hp'] <= 0:
+            del request.session[session_key]
+            return render(request, "app/level_fail.html", {
+                "level": level,
+                "is_boss": True,
+            })
+
+        request.session[session_key] = bossfight
+        request.session.modified = True
+        return redirect(request.path)
+
+    player_hp_segments = range(5)
+
+    return render(request, "app/level_boss.html", {
+        "level": level,
+        "boss": boss,
+        "boss_hp": bossfight['boss_hp'],
+        "player_hp": bossfight['player_hp'],
+        "player_hp_segments": player_hp_segments,
+        "suppress_base_messages": True,
+        "message": message,
+    })
+
+
+
 def level_fail(request, slug: str):
-    level = get_object_or_404(Levels, slug=slug, type=Levels.LevelType.TRIAL)
-    return render(request, "app/level_fail.html", {"level": level})
+    level = get_object_or_404(Levels, slug=slug)  # убрали фильтрацию по type
+    is_boss = level.type == Levels.LevelType.BOSS
+
+    return render(request, "app/level_fail.html", {
+        "level": level,
+        "is_boss": is_boss,
+    })
