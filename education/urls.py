@@ -9,6 +9,8 @@ urlpatterns = [
     path('login/',    views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 
+    # path('achievements/', views.achievements_view, name='achievements'),
+
 
     path("<slug:slug>/", views.location_map, name="location_map"),
     path("well/toss/", views.well_toss_view, name="well_toss"),
@@ -18,4 +20,6 @@ urlpatterns = [
     path("level/trial/<slug:slug>/<int:step>/", views.level_trial, name="level_trial"),
     path("level/<slug:slug>/boss/", views.level_boss, name="level_boss"),
     path("level/<slug:slug>/fail/", views.level_fail, name="level_fail"),
+
+    path('boss/hints/', views.get_boss_hints, name='boss_hints'),
 ]

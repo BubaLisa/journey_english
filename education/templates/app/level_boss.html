@@ -32,12 +32,28 @@
     {% endfor %}
   </div>
   <p>Ваше здоровье</p>
+
 </div>
+
+
+<div class="hint-button" style="position: absolute; top: 80px; right: 50px; text-align: center;">
+  <div>
+  <button id="hint-btn" title="Подсказка" style="background: none; border: none; font-size: 30px; cursor: pointer;">?</button>
+  </div>
+  <p style="margin-top: 5px;">Подсказка</p>
+
+  <!-- Контейнер с подсказками -->
+  <div id="hints-container" style="margin-top: 10px; display: none;">
+    <ul id="hints-list" style="list-style: none; padding: 0; margin: 0;"></ul>
+  </div>
+</div>
+
+
 
 <!-- Ввод -->
 <form method="post" class="word-input-form">
   {% csrf_token %}
-  <input type="text" name="word_input" required placeholder="Введите слово..." autofocus>
+  <input type="text" name="word_input" required placeholder="Введите слово на английском" autofocus>
   <button type="submit">Атаковать</button>
 </form>
 
@@ -48,5 +64,33 @@
     {% endfor %}
   </div>
 {% endif %}
+
+<script>
+document.getElementById("hint-btn").addEventListener("click", async () => {
+    const container = document.getElementById("hints-container");
+    const list = document.getElementById("hints-list");
+    container.style.display = "block";
+
+    const slug = "{{ level.slug }}";  // передаём из Django шаблона slug текущего уровня
+
+    try {
+        const response = await fetch("{% url 'boss_hints' %}?slug=" + slug);
+        const data = await response.json();
+
+        if (data.success) {
+            list.innerHTML = "";
+            data.hints.forEach(hint => {
+                const li = document.createElement("li");
+                li.textContent = hint;
+                list.appendChild(li);
+            });
+        } else {
+            list.innerHTML = `<li>${data.error}</li>`;
+        }
+    } catch (e) {
+        list.innerHTML = "<li>Ошибка при загрузке подсказок</li>";
+    }
+});
+</script>
 
 {% endblock %}

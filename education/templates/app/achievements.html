@@ -1,0 +1,17 @@
+<!--{% extends "base.html" %}
+{% load static %}
+{% block title %}Достижения{% endblock %}
+
+{% block content %}
+<h1 class="title">Достижения</h1>
+<div class="achievements-grid">
+  {% for achievement in all_achievements %}
+    <div class="achievement {% if achievement.id not in unlocked_ids %}locked{% endif %}">
+      <img src="{% if achievement.icon_url %}{{ achievement.icon_url }}{% else %}{% static 'img/achievements/goblet.png' %}{% endif %}" alt="{{ achievement.title }}">
+      <h2>{{ achievement.title }}</h2>
+      <p>{{ achievement.desc }}</p>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
+-->

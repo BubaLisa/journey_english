@@ -9,12 +9,14 @@ from django.utils.html import format_html
 from django.utils.text import slugify
 from django.db import IntegrityError
 
-from .models import Location, Levels, LevelQuestion, Answer, Word, LevelProgress, Boss, BossWord
+from .models import Location, Levels, LevelQuestion, Answer, Word, LevelProgress, Boss, BossWord, Achievements
 from .forms import CustomUserCreationForm
 from .utils import add_resources
 from .services import toss_coin
 
+import re
 import math
+import random
 from functools import wraps
 
 
@@ -63,7 +65,7 @@ def index(request):
     })
 
 
-
+# === РЕГИСТРАЦИЯ ===
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -101,7 +103,7 @@ def register(request):
     return render(request, 'app/register.html', {'form': form})
 
 
-
+# === ЛОГИН ===
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -136,6 +138,62 @@ def logout_view(request):
 
 
 
+
+'''@login_required
+def achievements_view(request):
+    user_achievements_qs = request.user.achievements.select_related('achievement')
+    unlocked_ids = set(user_ach.achievement.id for user_ach in user_achievements_qs)
+    all_achievements = Achievements.objects.all()
+
+    return render(request, 'app/achievements.html', {
+        'all_achievements': all_achievements,
+        'unlocked_ids': unlocked_ids,
+    })
+
+
+
+def check_and_award_achievements(user, request=None):
+    achievements = Achievements.objects.all()
+
+    for achievement in achievements:
+        if UserAchievements.objects.filter(user=user, achievement=achievement).exists():
+            continue  # Уже получено
+
+        condition = achievement.condition_json
+        if not condition or not isinstance(condition, dict):
+            continue  # Условие не задано или некорректное
+
+        condition_type = condition.get("type")
+
+        if condition_type == "level_passed":
+            # Условие: пройти уровень с указанным slug
+            slug = condition.get("slug")
+            if slug and LevelProgress.objects.filter(user=user, level__slug=slug, passed=True).exists():
+                UserAchievements.objects.create(user=user, achievement=achievement)
+                if request:
+                    from django.contrib import messages
+                    messages.success(
+                        request,
+                        f' Новое достижение: {achievement.title}!',
+                        extra_tags='achievement-popup'
+                    )
+
+        elif condition_type == "words_learned":
+            # Условие: выучить N слов
+            required_count = condition.get("count", 0)
+            if hasattr(user, "words_learned") and user.words_learned >= required_count:
+                UserAchievements.objects.create(user=user, achievement=achievement)
+                if request:
+                    from django.contrib import messages
+                    messages.success(
+                        request,
+                        f' Новое достижение: {achievement.title}!',
+                        extra_tags='achievement-popup'
+                    )'''
+
+
+
+# === ЛОКАЦИЯ ===
 def location_map(request, slug):
     location = get_object_or_404(Location.objects.prefetch_related('levels'), slug=slug)
     passed_levels = request.session.get('passed_levels', [])
@@ -187,6 +245,7 @@ def normalise(txt: str) -> str:
     return slugify(txt.strip().lower())
 
 
+# === ТЕОРИЯ ===
 @require_prev_level_passed
 def level_detail(request, slug, step=0):
     level = get_object_or_404(
@@ -223,6 +282,7 @@ def level_detail(request, slug, step=0):
             if request.user.is_authenticated:
                 progress.passed = True
                 progress.save()
+                # check_and_award_achievements(request.user, request)
             else:
                 passed_levels.append(level.slug)
                 request.session["passed_levels"] = passed_levels
@@ -289,7 +349,7 @@ def level_detail(request, slug, step=0):
     })
 
 
-
+# === ИСПЫТАНИЕ ===
 @require_prev_level_passed
 def level_trial(request, slug, step=0):
     level = get_object_or_404(
@@ -336,6 +396,7 @@ def level_trial(request, slug, step=0):
             if request.user.is_authenticated:
                 progress.passed = True
                 progress.save()
+                # check_and_award_achievements(request.user, request)
             else:
                 session_progress['passed'] = True
                 request.session[session_key] = session_progress
@@ -414,7 +475,7 @@ def level_trial(request, slug, step=0):
 
 
 
-
+# === БОСС ===
 @require_prev_level_passed
 def level_boss(request, slug):
     level = get_object_or_404(Levels, slug=slug, type=Levels.LevelType.BOSS)
@@ -455,6 +516,7 @@ def level_boss(request, slug):
                 is_repeat = progress.passed
                 progress.passed = True
                 progress.save()
+                # check_and_award_achievements(request.user, request)
             else:
                 passed_levels = request.session.get("passed_levels", [])
                 if slug not in passed_levels:
@@ -501,6 +563,7 @@ def level_boss(request, slug):
 
 
 def level_fail(request, slug: str):
+    
     level = get_object_or_404(Levels, slug=slug)  # убрали фильтрацию по type
     is_boss = level.type == Levels.LevelType.BOSS
 
@@ -508,3 +571,28 @@ def level_fail(request, slug: str):
         "level": level,
         "is_boss": is_boss,
     })
+
+
+def mask_word(word):
+    """Преобразует слово: заменяет несколько случайных букв на _"""
+    indices = random.sample(range(len(word)), k=min(3, len(word)//2))
+    return ''.join('_' if i in indices else ch for i, ch in enumerate(word))
+
+def get_boss_hints(request):
+    slug = request.GET.get("slug")
+    if not slug:
+        return JsonResponse({"success": False, "error": "Нет уровня"})
+
+    try:
+        level = Levels.objects.get(slug=slug)
+        boss = Boss.objects.get(level=level)
+        boss_words_qs = BossWord.objects.filter(boss=boss).select_related('word')
+        words = [bw.word.word for bw in boss_words_qs]
+        if not words:
+            return JsonResponse({"success": False, "error": "Нет слов для подсказок"})
+
+        hints = random.sample(words, min(3, len(words)))
+        masked = [mask_word(w) for w in hints]
+        return JsonResponse({"success": True, "hints": masked})
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
