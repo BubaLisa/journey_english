@@ -1,302 +1,310 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Shantell+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
-
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Shantell Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Shantell Sans', sans-serif;
 }
 
 body {
-    background-color: #ffffff;
-    color: #000000;
-    font-family: 'Shantell Sans', sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    padding: 100px;
+  background-color: #ffffff;
+  color: #000000;
+  font-family: 'Shantell Sans', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 100px;
 }
 /* header */
 header {
-    background-color: #ffffff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    height: 80px;
-    
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    border-bottom: 2px solid #000;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  height: 80px;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-bottom: 2px solid #000;
 }
 
 .res-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
 }
 
 .level-wrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .level-circle {
-    --size: 60px;
-    --border-width: 4px;
-    width: var(--size);
-    height: var(--size);
-    border-radius: 50%;
-    border: 2px solid #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 20px;
-    background: #fff;
-    position: relative;
+  --size: 60px;
+  --border-width: 4px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  border: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+  background: #fff;
+  position: relative;
 }
 
 /* Прогресс по опыту в круге */
 .level-circle::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: conic-gradient(#4CAF50 var(--p), transparent var(--p));
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--border-width)), #fff calc(100% - var(--border-width)));
-    mask: radial-gradient(farthest-side, transparent calc(100% - var(--border-width)), #fff calc(100% - var(--border-width)));
-    z-index: 0;
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(#4caf50 var(--p), transparent var(--p));
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--border-width)),
+    #fff calc(100% - var(--border-width))
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - var(--border-width)),
+    #fff calc(100% - var(--border-width))
+  );
+  z-index: 0;
 }
 
 .level-circle::after {
-    content: '';
-    position: absolute;
-    inset: var(--border-width);
-    border-radius: 50%;
-    background: white;
-    z-index: 0;
+  content: '';
+  position: absolute;
+  inset: var(--border-width);
+  border-radius: 50%;
+  background: white;
+  z-index: 0;
 }
 
 .level-circle span {
-    position: relative;
-    z-index: 1;
-    font-size: 18px;
-    font-weight: bold;
-    color: #000;
+  position: relative;
+  z-index: 1;
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
 }
 
 /* Tooltip с опытом */
 .level-tooltip {
-    display: none;
-    position: absolute;
-    bottom: -60px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #fff;
-    color: #000;
-    border: 2px solid #000;
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 14px;
-    white-space: nowrap;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    z-index: 10;
+  display: none;
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 }
 
 /* Показываем тултип при наведении */
 .level-wrapper:hover .level-tooltip {
-    display: block;
+  display: block;
 }
-
 
 /* Контент тултипа через атрибуты */
 .level-tooltip::before {
-    content: attr(data-tooltip);
+  content: attr(data-tooltip);
 }
 
 .coins {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-weight: 500;
-    font-size: 25px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  font-size: 25px;
 }
 
-.coins img { inline-size: 50px; }
-
+.coins img {
+  inline-size: 50px;
+}
 
 a {
-    text-decoration: none;
-    color: black;
+  text-decoration: none;
+  color: black;
 }
 
 .logo img {
-    height: 60px; /* или любой нужный размер */
-    width: auto;
-    display: block;
+  height: 60px; /* или любой нужный размер */
+  width: auto;
+  display: block;
 }
 /* Контейнер для логотипа */
 .logo {
-    height: 100%;
-    display: flex;
-    align-items: center;
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 /* Навигационное меню */
 nav {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    justify-content: space-between;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
 }
 
 /* Ссылки в навигации */
 .nav-links {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    height: 100%;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  height: 100%;
 }
 
 /* Стили для кнопок */
 .nav-link a {
-    color: #000;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 8px 16px;
-    border: 2px solid #000;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .nav-link a:hover {
-    background-color: #000;
-    color: #fff;
+  background-color: #000;
+  color: #fff;
 }
 
 .content {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h2 {
-    padding-top: 0px;
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 2rem;
-    font-weight: lighter;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  padding-top: 0px;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  font-weight: lighter;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 .level-path {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-.levels-container{
-    display: flex;
-    flex-direction: column;
+.levels-container {
+  display: flex;
+  flex-direction: column;
 }
 .level-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 40px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 40px 0;
 }
 
 .level-title {
-    position: relative;
-    width: 65px;
-    padding: 4px;
-    text-align: center;
-    border: 2px solid #000000;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 1.2rem;
-    margin: 0;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  position: relative;
+  width: 65px;
+  padding: 4px;
+  text-align: center;
+  border: 2px solid #000000;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .level-title:hover::after {
-    content: attr(data-level-title) "\a"
-             attr(data-level-type) "\a" 
-             attr(data-exp-reward) " опыта" "\a"
-             attr(data-coins-reward) " монет";
-    white-space: pre;
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #000;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    text-align: center;
-    line-height: 1.4;
-    z-index: 100;
-    margin-bottom: 10px;
-    width: max-content;
-    max-width: 200px;
+  content: attr(data-level-title) '\a'attr(data-level-type) '\a'attr(
+      data-exp-reward
+    )
+    ' опыта' '\a'attr(data-coins-reward) ' монет';
+  white-space: pre;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #000;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.4;
+  z-index: 100;
+  margin-bottom: 10px;
+  width: max-content;
+  max-width: 200px;
 }
 
 .level-title:hover::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: #000 transparent transparent transparent;
-    margin-bottom: 4px;
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: #000 transparent transparent transparent;
+  margin-bottom: 4px;
 }
 
 .level-brackets {
-    font-family: monospace;
-    font-size: 1.5rem;
-    line-height: 1;
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 2px 0;
+  font-family: monospace;
+  font-size: 1.5rem;
+  line-height: 1;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2px 0;
 }
 
 .empty-message {
-    text-align: center;
-    font-style: italic;
-    color: #777777;
-    margin-top: 30px;
+  text-align: center;
+  font-style: italic;
+  color: #777777;
+  margin-top: 30px;
 }
 
 .level-icon {
-    display: flex;
-    flex-direction: column;   /* если позже добавишь подпись под иконкой */
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 60px;
-    padding: 2px;
+  display: flex;
+  flex-direction: column; /* если позже добавишь подпись под иконкой */
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 60px;
+  padding: 2px;
 }
 
 .level-title:hover .theory-icon {
   transform: scale(1.1);
-  filter: brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(541%) hue-rotate(85deg) brightness(96%) contrast(92%);
+  filter: brightness(0) saturate(100%) invert(41%) sepia(89%) saturate(541%)
+    hue-rotate(85deg) brightness(96%) contrast(92%);
 }
 .level-title:hover.theory {
   transform: scale(1.1);
@@ -306,7 +314,8 @@ h2 {
 /* Испытание — жёлтое */
 .level-title:hover .trial-icon {
   transform: scale(1.1);
-  filter: brightness(0) saturate(100%) invert(75%) sepia(91%) saturate(745%) hue-rotate(6deg) brightness(103%) contrast(103%);
+  filter: brightness(0) saturate(100%) invert(75%) sepia(91%) saturate(745%)
+    hue-rotate(6deg) brightness(103%) contrast(103%);
 }
 .level-title:hover.trial {
   transform: scale(1.1);
@@ -316,7 +325,8 @@ h2 {
 /* Босс — красное */
 .level-title:hover .boss-icon {
   transform: scale(1.1);
-  filter: brightness(0) saturate(100%) invert(21%) sepia(94%) saturate(6292%) hue-rotate(352deg) brightness(94%) contrast(121%);
+  filter: brightness(0) saturate(100%) invert(21%) sepia(94%) saturate(6292%)
+    hue-rotate(352deg) brightness(94%) contrast(121%);
 }
 .level-title:hover.boss {
   transform: scale(1.1);
@@ -332,52 +342,51 @@ h2 {
 
 /* Колодец */
 
-
-.well-container{
+.well-container {
   display: flex;
   flex-direction: column;
 }
-.well-img{
-    position: absolute;
-    width: 80px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    left: 28%;
-    top: 60%;
-    width: 130px;
+.well-img {
+  position: absolute;
+  width: 80px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  left: 28%;
+  top: 60%;
+  width: 130px;
 }
 
 .well-img:hover {
-    transform: scale(1.1);
+  transform: scale(1.1);
 }
 
 /* 📜 Всплывающее окно */
 #well-popup {
-    position: absolute;
-    z-index: 20;
-    background: white;
-    border: 2px solid #000000;
-    border-radius: 12px;
-    padding: 12px 16px;
-    left: 25%;
-    top: 35%;
-    width: 220px;
+  position: absolute;
+  z-index: 20;
+  background: white;
+  border: 2px solid #000000;
+  border-radius: 12px;
+  padding: 12px 16px;
+  left: 25%;
+  top: 35%;
+  width: 220px;
 }
 
 /* ✨ Фраза */
 #well-phrase {
-    position: absolute;
-    z-index: 10;
-    font-weight: bold;
-    color: #3b7c2a;
-    font-size: 1rem;
-    padding: 8px;
-    background: rgba(255,255,255,0.9);
-    border-radius: 8px;
-    text-align: center;
+  position: absolute;
+  z-index: 10;
+  font-weight: bold;
+  color: #3b7c2a;
+  font-size: 1rem;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  text-align: center;
 }
 
-.well-popup-btn-container{
+.well-popup-btn-container {
   display: flex;
   flex-direction: row;
   gap: 5px;
@@ -385,26 +394,24 @@ h2 {
   margin-top: 10px;
 }
 .well-btn {
-    color: #000;
-    background-color: white;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 8px 8px;
-    border: 2px solid #000;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+  color: #000000;
+  background-color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 8px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .well-btn:hover {
-    background-color: #000;
-    color: #fff;
-
+  background-color: #000;
+  color: #fff;
 }
 
 .hidden {
-    display: none !important;
+  display: none !important;
 }
-
 
 /* Ачивки  */
 
@@ -424,39 +431,38 @@ h2 {
   filter: grayscale(100%);
 }
 
-
 /* Страничка регистрации*/
 
 .registration-form {
-    max-width: 500px;
-    margin: 50px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .form-group {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .form-group input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .error {
-    color: rgb(0, 0, 0);
-    font-size: 0.9em;
-    margin-top: 5px;
+  color: rgb(0, 0, 0);
+  font-size: 0.9em;
+  margin-top: 5px;
 }
 
 .error-login {
@@ -464,26 +470,25 @@ h2 {
 }
 
 .btn {
-    color: #000;
-    background-color: white;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 8px 16px;
-    border: 2px solid #000;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    width: 250px;
-    height: 50px;
-    font-size: 20px;
+  color: #000;
+  background-color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  width: 250px;
+  height: 50px;
+  font-size: 20px;
 }
-
 
 .btn:hover {
-    background-color: #000;
-    color: white;
+  background-color: #000;
+  color: white;
 }
 .text-center {
-    text-align: center;
+  text-align: center;
 }
 
 /* Стили уровней*/
@@ -500,6 +505,7 @@ h2 {
 
 .progress-bar {
   display: flex;
+  justify-content: center;
   gap: 8px;
   margin-bottom: 20px;
 }
@@ -571,7 +577,20 @@ h2 {
   background-color: #f0f0f0;
 }
 
+.next-btn-trile {
+  padding: 10px 20px;
+  font-size: 16px;
+  background: black;
+  color: white;
+  border: 2px solid black;
+  cursor: pointer;
+  transition: all 0.3s;
+}
 
+.next-btn-trile:hover {
+  background: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+}
 /* level_completed styles*/
 
 .level-complete-container {
@@ -634,7 +653,6 @@ h2 {
   box-sizing: border-box;
 }
 
-
 .question-block-trial {
   border: 2px solid #000000;
   border-radius: 12px;
@@ -689,30 +707,42 @@ h2 {
 
 .next-btn {
   border: 2px solid #000;
-  background-color: #fff;
-  color: #000;
+  background-color: #ffffff;
+  color: #000000;
   padding: 10px 20px;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 2px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  height: 45px;
 }
 
 .next-btn:hover {
-  background-color: #f0f0f0;
+  background-color: #000000;
+  color: rgb(255, 255, 255);
+}
+
+input.translation-input {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid black;
+  background: white;
+  color: black;
+  margin-right: 10px;
+  width: 300px;
 }
 
 img#squirrel {
-  width: 520px;
+  width: 720px;
   height: auto;
   margin: 20px auto 0;
   display: block;
+  margin: 50px 0 50px 0;
 }
-
 
 /* Кнопки level_fail */
 
-.fail-links-container{
+.fail-links-container {
   padding-top: 30px;
   display: flex;
   flex-direction: column;
@@ -724,117 +754,118 @@ img#squirrel {
 /* boss level */
 
 .boss-info {
-    text-align: center;
-    margin-bottom: 30px;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .boss-insc {
-    margin: 0;
-    font-size: 40px;
-    font-weight: lighter;
-    height: 40px;
+  margin: 0;
+  font-size: 40px;
+  font-weight: lighter;
+  height: 40px;
 }
 
 .boss-name {
-    margin: 10px 0;
-    font-size: 32px;
+  margin: 10px 0;
+  font-size: 32px;
 }
 
 /* HP-бар босса */
 .boss-hp {
-    margin: 20px auto;
-    max-width: 400px;
-    text-align: center;
-    height: 40px;
+  margin: 20px auto;
+  max-width: 400px;
+  text-align: center;
+  height: 40px;
 }
 
 .hp-bar {
-    display: flex;
-    height: 30px;
-    border: 2px solid #000;
-    margin-bottom: 5px;
+  display: flex;
+  height: 30px;
+  border: 2px solid #000;
+  margin-bottom: 5px;
 }
 
 .hp-segment {
-    flex: 1;
-    border-right: 2px solid #000;
-    background-color: white;
+  flex: 1;
+  border-right: 2px solid #000;
+  background-color: white;
 }
 
 .hp-segment:last-child {
-    border-right: none;
+  border-right: none;
 }
 
 .hp-segment.dead {
-    background-color: black;
+  background-color: black;
 }
 
 /* Поле битвы */
 .battlefield {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin: 50px 0;
-    height: 400px;
-    position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 50px 0;
+  height: 400px;
+  position: relative;
 }
 
 .hero {
-    width: 150px;
-    position: absolute;
-    left: 10%;
-    bottom: 0;
+  width: 150px;
+  position: absolute;
+  left: 10%;
+  bottom: 0;
 }
 
 .boss {
-    width: 300px;
-    position: absolute;
-    right: 10%;
-    top: 0;
+  width: 300px;
+  position: absolute;
+  right: 10%;
+  top: 0;
 }
 
-.hero img, .boss img {
-    width: 100%;
-    height: auto;
-    filter: grayscale(100%);
+.hero img,
+.boss img {
+  width: 100%;
+  height: auto;
+  filter: grayscale(100%);
 }
 
 /* HP игрока */
 .player-hp {
-    text-align: center;
-    margin: 20px 0;
-    font-size: 18px;
+  text-align: center;
+  margin: 20px 0;
+  font-size: 18px;
 }
 
 /* Форма ввода */
 .word-input-form {
-    text-align: center;
-    margin: 30px 0;
+  text-align: center;
+  margin: 30px 0;
 }
 
 .word-input-form input {
-    padding: 10px 15px;
-    font-size: 16px;
-    border: 2px solid black;
-    background: white;
-    color: black;
-    margin-right: 10px;
-    width: 300px;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 2px solid black;
+  background: white;
+  color: black;
+  margin-right: 10px;
+  width: 300px;
 }
 
 .word-input-form button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background: black;
-    color: white;
-    border: 2px solid black;
-    cursor: pointer;
-    transition: all 0.3s;
+  padding: 10px 20px;
+  font-size: 16px;
+  background: black;
+  color: white;
+  border: 2px solid black;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
 .word-input-form button:hover {
-    background: white;
-    color: black;
+  background: white;
+  color: black;
 }
 
 .hint-button {
@@ -843,13 +874,21 @@ img#squirrel {
   margin: 20px;
   padding: 10px;
   background-color: #fff;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-
-
 .message {
-    text-align: center;
-    font-size: 18px;
-    margin: 20px 0;
+  text-align: center;
+  font-size: 18px;
+  margin: 20px 0;
+}
+.boss-instructions {
+  max-width: 700px;
+  margin: 0 auto 30px auto;
+  padding: 15px 20px;
+  border: 2px solid rgb(176, 176, 176);
+  background-color: white;
+
+  font-size: 16px;
+  line-height: 1.5;
 }
