@@ -16,6 +16,7 @@
 
     {# поп-ап «Бросить монету?» #}
     <div id="well-popup" class="hidden">
+      {% if user.is_authenticated %}
         <p class="mb-2">
           Бросить монетку в колодец? <br>Вы станете мудрее.
         </p>
@@ -26,6 +27,10 @@
           </button>
           <button id="well-close" class="well-btn">нет</button>
         </div>
+      {% else %}
+        <p class='text-black-600 font-semibold'>Пожалуйста, войдите в аккаунт, чтобы пользоваться колодцем.</p>
+        <button id='well-close' class='well-btn'>Закрыть</button>
+      {% endif %}  
     </div>
 
     {# здесь будет показываться случайная фраза #}

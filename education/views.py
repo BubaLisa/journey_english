@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.http import HttpResponse, Http404, JsonResponse
 from django.urls import reverse
 from django.utils.html import format_html
@@ -229,7 +229,8 @@ def location_detail(request, slug):
     return render(request, "app/location_detail.html", {"location": location})
 
 
-@login_required
+#@login_required
+@require_POST
 def well_toss_view(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "Только POST"}, status=400)
@@ -519,11 +520,12 @@ def level_boss(request, slug):
                 # check_and_award_achievements(request.user, request)
             else:
                 passed_levels = request.session.get("passed_levels", [])
-                if slug not in passed_levels:
+                is_repeat = slug in passed_levels
+                if not is_repeat:
                     passed_levels.append(slug)
                     request.session["passed_levels"] = passed_levels
                 request.session.modified = True
-                is_repeat = slug in passed_levels
+                
 
             exp_to_add = boss.reward_exp // 2 if is_repeat else boss.reward_exp
             coins_to_add = 0 if is_repeat else boss.reward_coins
